@@ -574,6 +574,158 @@ yukiQuoteSelected = function() {
     InsertInto(t, '>' + window.getSelection().toString().replace(/\n/gm, '\n>') + '\n');
 };
 
+var yukiLetsPlayReversi = function(el) {
+    yukiMakeReplyForm(el, Hanabira.URL.board, $(el).parents('.thread').attr('id').replace('thread_', ''), $(el).parents('.post').attr('id').replace('post_', ''));
+};
+
+var yukiAddGameFile = function(el) {
+    if (fileList.length >= 5) {
+        alert('Пять файлов это максимум на Доброчане.');
+        return false;
+    }
+
+    var boardDataUrl = $(el).parent().find('canvas')[0].toDataURL();
+
+    f = {
+        "name": 'reversigameboard.png',
+        "size": boardDataUrl.length * 6 / 8,
+        "type": 'image/png'
+    };
+
+    fileList.push({
+        file: f,
+        renamed: false,
+        f_name: 'reversigameboard.png',
+        jpegStripped: true,
+        el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + boardDataUrl + '"/><br/><span class="file_name">' +
+            escape(f.name) + '</span><br/><span class="file_name">' +
+            bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
+        dataURL: boardDataUrl
+    });
+
+
+    fileList[fileList.length - 1].el.find('.yuki_clickable').on("click", (function(data) {
+        return function(e) {
+            var idx = fileList.indexOf(data);
+            data.el.remove();
+            delete fileList[idx];
+            fileList.splice(idx, 1);
+
+        };
+    }(fileList[fileList.length - 1])));
+
+    $('#files_placeholder').append(fileList[fileList.length - 1].el);
+
+    return true;
+};
+
+var yukiAttachCapcha = function(el) {
+    if (fileList.length >= 5) {
+        alert('Пять файлов это максимум на Доброчане.');
+        return false;
+    }
+
+    var img = $(el).parent().find('img')[0];
+    if (img.nodeName.toLowerCase() === 'img') {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        var dataURL = canvas.toDataURL("image/png");
+
+        f = {
+            "name": 'talking_captcha.png',
+            "size": dataURL.length * 6 / 8,
+            "type": 'image/png'
+        };
+
+        fileList.push({
+            file: f,
+            renamed: false,
+            f_name: 'talking_captcha.png',
+            jpegStripped: true,
+            el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + dataURL + '"/><br/><span class="file_name">' +
+                escape(f.name) + '</span><br/><span class="file_name">' +
+                bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
+            dataURL: dataURL
+        });
+
+
+        fileList[fileList.length - 1].el.find('.yuki_clickable').on("click", (function(data) {
+            return function(e) {
+                var idx = fileList.indexOf(data);
+                data.el.remove();
+                delete fileList[idx];
+                fileList.splice(idx, 1);
+
+            };
+        }(fileList[fileList.length - 1])));
+
+        $('#files_placeholder').append(fileList[fileList.length - 1].el);
+    }
+    return true;
+};
+
+
+var supports_html5_storagefunction = function() {
+    try {
+        return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+        return false;
+    }
+};
+
+var yukiGetLocalStorageValue = function(name, deflt) {
+    if (supports_html5_storagefunction() && name in localStorage) {
+        var v = localStorage.getItem(name);
+        if (v == 'false') {
+            v = false;
+        }
+        if (v == 'true') {
+            v = true;
+        }
+        return v;
+    } else {
+        return deflt;
+    }
+};
+
+var yukiSetLocalStorageValue = function(name, value) {
+    if (supports_html5_storagefunction()) {
+        localStorage.setItem(name, value);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+var yukiSetNewOptions = function(el) {
+    if ($(el).attr('id') == 'yukiAutoloadOption') {
+        yukiAutoupdateThread = el.checked;
+        yukiSetLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
+    }
+    if ($(el).attr('id') == 'yukiAutoloadPeriod') {
+        threadUpdateTimer = $(el).val();
+        yukiSetLocalStorageValue('yukithreadupdatetime', threadUpdateTimer);
+    }
+
+    if ($(el).attr('id') == 'yukiRemoveExif') {
+        yukiRemoveExif = el.checked;
+        yukiSetLocalStorageValue('yukiRemoveExif', yukiRemoveExif);
+    }
+    if ($(el).attr('id') == 'yukiRemoveFileName') {
+        yukiRemoveFileName = el.checked;
+        yukiSetLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
+    }
+};
+
+function checkEnter(e) {
+    e = e || event;
+    return (e.keyCode || e.which || e.charCode || 0) !== 13;
+}
+
+
 var ReversiGame = (function() {
     'use strict';
 
@@ -927,158 +1079,6 @@ var ReversiGame = (function() {
 }());
 
 
-var yukiLetsPlayReversi = function(el) {
-    yukiMakeReplyForm(el, Hanabira.URL.board, $(el).parents('.thread').attr('id').replace('thread_', ''), $(el).parents('.post').attr('id').replace('post_', ''));
-};
-
-var yukiAddGameFile = function(el) {
-    if (fileList.length >= 5) {
-        alert('Пять файлов это максимум на Доброчане.');
-        return false;
-    }
-
-    var boardDataUrl = $(el).parent().find('canvas')[0].toDataURL();
-
-    f = {
-        "name": 'reversigameboard.png',
-        "size": boardDataUrl.length * 6 / 8,
-        "type": 'image/png'
-    };
-
-    fileList.push({
-        file: f,
-        renamed: false,
-        f_name: 'reversigameboard.png',
-        jpegStripped: true,
-        el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + boardDataUrl + '"/><br/><span class="file_name">' +
-            escape(f.name) + '</span><br/><span class="file_name">' +
-            bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
-        dataURL: boardDataUrl
-    });
-
-
-    fileList[fileList.length - 1].el.find('.yuki_clickable').on("click", (function(data) {
-        return function(e) {
-            var idx = fileList.indexOf(data);
-            data.el.remove();
-            delete fileList[idx];
-            fileList.splice(idx, 1);
-
-        };
-    }(fileList[fileList.length - 1])));
-
-    $('#files_placeholder').append(fileList[fileList.length - 1].el);
-
-    return true;
-};
-
-var yukiAttachCapcha = function(el) {
-    if (fileList.length >= 5) {
-        alert('Пять файлов это максимум на Доброчане.');
-        return false;
-    }
-
-    var img = $(el).parent().find('img')[0];
-    if (img.nodeName.toLowerCase() === 'img') {
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0);
-        var dataURL = canvas.toDataURL("image/png");
-
-        f = {
-            "name": 'talking_captcha.png',
-            "size": dataURL.length * 6 / 8,
-            "type": 'image/png'
-        };
-
-        fileList.push({
-            file: f,
-            renamed: false,
-            f_name: 'talking_captcha.png',
-            jpegStripped: true,
-            el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + dataURL + '"/><br/><span class="file_name">' +
-                escape(f.name) + '</span><br/><span class="file_name">' +
-                bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
-            dataURL: dataURL
-        });
-
-
-        fileList[fileList.length - 1].el.find('.yuki_clickable').on("click", (function(data) {
-            return function(e) {
-                var idx = fileList.indexOf(data);
-                data.el.remove();
-                delete fileList[idx];
-                fileList.splice(idx, 1);
-
-            };
-        }(fileList[fileList.length - 1])));
-
-        $('#files_placeholder').append(fileList[fileList.length - 1].el);
-    }
-    return true;
-};
-
-
-var supports_html5_storagefunction = function() {
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
-};
-
-var yukiGetLocalStorageValue = function(name, deflt) {
-    if (supports_html5_storagefunction() && name in localStorage) {
-        var v = localStorage.getItem(name);
-        if (v == 'false') {
-            v = false;
-        }
-        if (v == 'true') {
-            v = true;
-        }
-        return v;
-    } else {
-        return deflt;
-    }
-};
-
-var yukiSetLocalStorageValue = function(name, value) {
-    if (supports_html5_storagefunction()) {
-        localStorage.setItem(name, value);
-        return true;
-    } else {
-        return false;
-    }
-};
-
-var yukiSetNewOptions = function(el) {
-    if ($(el).attr('id') == 'yukiAutoloadOption') {
-        yukiAutoupdateThread = el.checked;
-        yukiSetLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
-    }
-    if ($(el).attr('id') == 'yukiAutoloadPeriod') {
-        threadUpdateTimer = $(el).val();
-        yukiSetLocalStorageValue('yukithreadupdatetime', threadUpdateTimer);
-    }
-
-    if ($(el).attr('id') == 'yukiRemoveExif') {
-        yukiRemoveExif = el.checked;
-        yukiSetLocalStorageValue('yukiRemoveExif', yukiRemoveExif);
-    }
-    if ($(el).attr('id') == 'yukiRemoveFileName') {
-        yukiRemoveFileName = el.checked;
-        yukiSetLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
-    }
-};
-
-function checkEnter(e) {
-    e = e || event;
-    return (e.keyCode || e.which || e.charCode || 0) !== 13;
-}
-
-;
 (function() {
     'use strict';
 
