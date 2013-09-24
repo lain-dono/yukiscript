@@ -28,8 +28,8 @@ var yukiSaysWeFocused = true,
     yukiRemoveExif = true,
     yukiRemoveFileName = true;
 
-ParseUrl = function(url){
-    m = (url || document.location.href).match( /https?:\/\/([^\/]+)\/([^\/]+)\/((\d+)|res\/(\d+)|\w+)(\.x?html)?(#i?(\d+))?/)
+parseUrl = function(url){
+    m = (url || document.location.href).match( /https?:\/\/([^\/]+)\/([^\/]+)\/((\d+)|res\/(\d+)|\w+)(\.x?html)?(#i?(\d+))?/);
     return m?{host:m[1], board:m[2], page:m[4], thread:m[5], pointer:m[8]}:{};
 };
 
@@ -41,54 +41,54 @@ var makeRandId = function(size){
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
-}
+};
 
 var arrayBufferDataUri = function(raw) {
-   var base64 = ''
-   var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+   var base64 = '';
+   var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
   
-   var bytes = new Uint8Array(raw)
-   var byteLength = bytes.byteLength
-   var byteRemainder = byteLength % 3
-   var mainLength = byteLength - byteRemainder
+   var bytes = new Uint8Array(raw);
+   var byteLength = bytes.byteLength;
+   var byteRemainder = byteLength % 3;
+   var mainLength = byteLength - byteRemainder;
   
-   var a, b, c, d
-   var chunk
+   var a, b, c, d;
+   var chunk;
   
    // Main loop deals with bytes in chunks of 3
    for (var i = 0; i < mainLength; i = i + 3) {
     // Combine the three bytes into a single integer
-    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
   
     // Use bitmasks to extract 6-bit segments from the triplet
-    a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
-    b = (chunk & 258048) >> 12 // 258048   = (2^6 - 1) << 12
-    c = (chunk & 4032) >> 6 // 4032     = (2^6 - 1) << 6
-    d = chunk & 63 // 63       = 2^6 - 1
+    a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+    b = (chunk & 258048) >> 12; // 258048   = (2^6 - 1) << 12
+    c = (chunk & 4032) >> 6; // 4032     = (2^6 - 1) << 6
+    d = chunk & 63; // 63       = 2^6 - 1
     // Convert the raw binary segments to the appropriate ASCII encoding
-    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
    }
   
    // Deal with the remaining bytes and padding
    if (byteRemainder == 1) {
-    chunk = bytes[mainLength]
+    chunk = bytes[mainLength];
   
-    a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+    a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
     // Set the 4 least significant bits to zero
-    b = (chunk & 3) << 4 // 3   = 2^2 - 1
-    base64 += encodings[a] + encodings[b] + '=='
+    b = (chunk & 3) << 4; // 3   = 2^2 - 1
+    base64 += encodings[a] + encodings[b] + '==';
    } else if (byteRemainder == 2) {
-    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
   
-    a = (chunk & 16128) >> 8 // 16128 = (2^6 - 1) << 8
-    b = (chunk & 1008) >> 4 // 1008  = (2^6 - 1) << 4
+    a = (chunk & 16128) >> 8; // 16128 = (2^6 - 1) << 8
+    b = (chunk & 1008) >> 4; // 1008  = (2^6 - 1) << 4
     // Set the 2 least significant bits to zero
-    c = (chunk & 15) << 2 // 15    = 2^4 - 1
-    base64 += encodings[a] + encodings[b] + encodings[c] + '='
+    c = (chunk & 15) << 2; // 15    = 2^4 - 1
+    base64 += encodings[a] + encodings[b] + encodings[c] + '=';
    }
   
-   return base64
-  }
+   return base64;
+  };
 
 var jpegStripExtra = function(input) {
           // result e.target.result;
@@ -102,7 +102,7 @@ var jpegStripExtra = function(input) {
           }
 
           var orig = new Uint8Array(array);
-          var outData = new ArrayBuffer(orig.byteLength)
+          var outData = new ArrayBuffer(orig.byteLength);
           var output = new Uint8Array(outData);
           var posO = 2, posT = 2;
    
@@ -141,15 +141,15 @@ var jpegStripExtra = function(input) {
 var difference = function(array1, array2){
     var result = [];
 
-    if(array2.length == 0){
+    if(array2.length === 0){
         return array1;
-    };
+    }
 
     for (var i = 0; i < array1.length; i++) {
         if(array2.indexOf(array1[i]) == -1){
             result.push(array1[i]);
-        };      
-    };
+        } 
+    }
 
     return result;
 };
@@ -169,7 +169,7 @@ var yukiPleaseReplyLinks2 = function () {
 
             var replyLink = '<a href="/'+board+'/res/'+threadID+'.xhtml#i'+postID+'" onmouseover="ShowRefPost(event,\''+
                     board+'\', '+threadID+', '+postID+')" onclick="Highlight(event, \''+postID+
-                    '\')" style="font-size: 66%; font-style: italic;" class="yukiReplyLinks">&gt;&gt;'+postID+'&nbsp;&nbsp;</a>'
+                    '\')" style="font-size: 66%; font-style: italic;" class="yukiReplyLinks">&gt;&gt;'+postID+'&nbsp;&nbsp;</a>';
 
             var links = {};
 
@@ -194,13 +194,13 @@ var yukiPleaseReplyLinks2 = function () {
             r.find('.message a').each(function(j){
                 var l = $(this);
 
-                if(l.attr('onmouseover') != null){
+                if(l.attr('onmouseover') !== null){
                     var ref = l.text().replace('>>', '');
                     links[ref] = ref;                   
                 }else{
                     var l = $(this);
 
-                    if(!l.hasClass('de-ytube-link') && l.text().indexOf('YouTube: ') == 0 && l.attr('href').indexOf('http://www.youtube.com/watch?v=') == 0){
+                    if(!l.hasClass('de-ytube-link') && l.text().indexOf('YouTube: ') === 0 && l.attr('href').indexOf('http://www.youtube.com/watch?v=') === 0){
 
                         var ytId = l.attr('href').replace('http://www.youtube.com/watch?v=','');
                         l.addClass('de-ytube-link');
@@ -212,7 +212,7 @@ var yukiPleaseReplyLinks2 = function () {
                                         return function(event){
                                             $(this).replaceWith($('<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + ytId +
                                              '" wmode="transparent" width="360" height="270">'));
-                                        }
+                                        };
                                     }(ytId)).parent());
                             }else{
                                 $(this).closest(".postbody").before($('<div class="yuki_ytholder"><img src="https://i.ytimg.com/vi/'+ytId+
@@ -220,7 +220,7 @@ var yukiPleaseReplyLinks2 = function () {
                                         return function(event){
                                             $(this).replaceWith($('<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + ytId +
                                              '" wmode="transparent" width="360" height="270">'));
-                                        }
+                                        };
                                     }(ytId)).parent());
                             }
                             $(this).closest(".postbody").css('clear', 'left');
@@ -324,7 +324,7 @@ var yukiPleaseUpdateThread = function(newHtml){
     });
 
     $.each(difference(newPosts, oldPosts), function(index, item){
-        if(postParents[item] != 0){
+        if(postParents[item] !== 0){
             var pEl = $('table#post_' + postParents[item]);
             while(pEl.next().hasClass('yukiSaysPostDeleted')){
                 pEl = pEl.next();
@@ -407,7 +407,7 @@ var yukiMakeReplyForm = function(click, board, tid, pid){
         gameData.onload = function(){
             ReversiGame.initBoard(gameData, true);
             $("#gamePlaceholder span").replaceWith(ReversiGame.createGameBoard());
-        }
+        };
 
         gameData.src = $($(click).parent().find('a')[0]).attr('href');
     }
@@ -423,7 +423,7 @@ var bytesMagnitude = function(bytes){
     }else{
         return (bytes / 1024 / 1024).toFixed(2) + ' MB';
     }
-}
+};
 
 var yukiAddFile = function(evt, b){
     var files = evt.target.files; // FileList object
@@ -459,10 +459,10 @@ var yukiAddFile = function(evt, b){
                 var idx = fileList.indexOf(data);
                 data.el.remove();
                 delete fileList[idx];
-                fileList.splice(idx, 1)
+                fileList.splice(idx, 1);
 
-            }
-        }(fileList[fileList.length - 1])) )
+            };
+        }(fileList[fileList.length - 1])) );
 
         $('#files_placeholder').append(fileList[fileList.length - 1].el);
 
@@ -491,7 +491,7 @@ var yukiAddFile = function(evt, b){
       // Read in the image file as a data URL.
       reader.readAsDataURL(f);
     }
-}
+};
 
 function dataURLtoBlob(dataURL, dataType) {
   // Decode the dataURL    
@@ -503,7 +503,7 @@ function dataURLtoBlob(dataURL, dataType) {
   }
   // Return our Blob object
   return new Blob([new Uint8Array(array)], {type: dataType});
-};
+}
 
 var yukiPleasePost = function(){
     var formData = $('#yukipostform').serializeArray(),
@@ -511,7 +511,7 @@ var yukiPleasePost = function(){
 
     for (var i = 0; i < formData.length; i++) {
         fd.append(formData[i].name, formData[i].value);        
-    };
+    }
 
     for (var i = 0; i < fileList.length; i++) {
 
@@ -525,12 +525,12 @@ var yukiPleasePost = function(){
 
         fd.append("file_" + (i+1), dataURLtoBlob(fileList[i].dataURL, fileList[i].file.type), fileList[i].f_name);
         fd.append("file_" + (i+1) + "_rating", fileList[i].el.find("select[name='file_1_rating']").val());       
-    };
+    }
     fd.append("post_files_count", fileList.length);
 
     yukiIsPosting = true;
     clearTimeout(updateHeartBeat);  
-    yukireplyForm.find("input[type=submit]").val('..Работаем...').attr("disabled", "disabled");;
+    yukireplyForm.find("input[type=submit]").val('..Работаем...').attr("disabled", "disabled");
 
     $.ajax({
         url: '/' + Hanabira.URL.board + '/post/new.xhtml' + "?X-Progress-ID=" + upload_handler,
@@ -560,7 +560,7 @@ var yukiPleasePost = function(){
 yukiQuoteSelected = function(){
   var t = document.getElementById('yukireplyText');
     InsertInto(t, '>'+window.getSelection().toString().replace(/\n/gm, '\n>')+'\n');
-}
+};
 
 var ReversiGame = (function () {
   'use strict';
@@ -576,28 +576,28 @@ var ReversiGame = (function () {
 
   var reversiMove = function(x, y, doMove, color){
     if(!color){ 
-      color = current 
+      color = current; 
     }
     if(!doMove){ 
-      doMove = false 
+      doMove = false; 
     }
 
     var index = y * 8 + x;
     //console.log('check for ' +x+', ' + y + ' (' +index+')');
 
-    if(reversiBoard[index] != 0){
+    if(reversiBoard[index] !== 0){
       return false;
     }
 
     var checkDirection = function (dx, dy){
-      if(dx == 0 && dy == 0){
+      if(dx === 0 && dy === 0){
         return false;
       }
 
       var cx = x + dx, cy = y + dy, cidx = cy * 8 + cx;
 
       if(cx < 0||  cx > 7 ||  cy < 0 ||  cy > 7 || 
-          reversiBoard[cidx] == 0 || reversiBoard[cidx] == color){
+          reversiBoard[cidx] === 0 || reversiBoard[cidx] === color){
         return false;
       }
 
@@ -605,16 +605,16 @@ var ReversiGame = (function () {
         if(reversiBoard[cidx] == color){
           return true;
         }
-        if(reversiBoard[cidx] == 0){
+        if(reversiBoard[cidx] === 0){
           return false;
         }
         cx += dx;
         cy += dy;
-        cidx = cy * 8 + cx
+        cidx = cy * 8 + cx;
       }
 
-      return false
-    }
+      return false;
+    };
 
     var doDirection = function (dx, dy){
       var cx = x + dx, cy = y + dy, cidx = cy * 8 + cx;
@@ -622,7 +622,7 @@ var ReversiGame = (function () {
       reversiBoard[y * 8 + x] = color;
 
       while(cx >= 0 && cx <= 7 && cy >= 0 && cy <= 7){
-        if(reversiBoard[cidx] == color){
+        if(reversiBoard[cidx] === color){
           return true;
         }
 
@@ -630,11 +630,11 @@ var ReversiGame = (function () {
         
         cx += dx;
         cy += dy;
-        cidx = cy * 8 + cx
+        cidx = cy * 8 + cx;
       }
       
-      return false
-    }
+      return false;
+    };
 
     for(var i = -1; i < 2; i++){
       for(var j = -1; j < 2; j++){
@@ -649,7 +649,7 @@ var ReversiGame = (function () {
     }
 
     return false;
-  }
+  };
 
   var checkCanMove = function(color){
     for(var i = 0; i < 8; i++){
@@ -660,7 +660,7 @@ var ReversiGame = (function () {
       }    
     }
     return false;
-  }
+  };
 
   my.initBoard = function (initMoves, fromImage) {
     reversiBoard = [0, 0, 0, 0, 0, 0, 0, 0, 
@@ -721,8 +721,8 @@ var ReversiGame = (function () {
   my.getBoard = function () {
     var result = [];
     for (var i = 0; i < reversiBoard.length; i++) {
-      result.push(reversiBoard[i] == 0 ? 'empty' : reversiBoard[i] == blacks ? 'black': 'white');
-    };
+      result.push(reversiBoard[i] === 0 ? 'empty' : reversiBoard[i] === blacks ? 'black': 'white');
+    }
 
     return result;
   };
@@ -805,7 +805,7 @@ var ReversiGame = (function () {
 
 
     for (var i = 0; i < reversiBoard.length; i++) {
-      if (reversiBoard[i] != 0){
+      if (reversiBoard[i] !== 0){
         ctxB.beginPath();
         ctxB.arc(125 + (i % 8) * 50 + 2, 125 + Math.floor(i / 8) * 50 + 2, 20, 0, 2 * Math.PI, false);
         ctxB.fillStyle = 'rgba(0,0,0,0.3)';
@@ -818,7 +818,7 @@ var ReversiGame = (function () {
         ctxB.fill();
         ctxB.closePath();
       }
-    };
+    }
 
     if(startedAs == current){
       ctxB.strokeStyle = 'rgba(0, 0, 0, 0.2)';
@@ -831,7 +831,7 @@ var ReversiGame = (function () {
           ctxB.stroke();
           ctxB.closePath();
         }
-      };
+      }
     }
 
 
@@ -863,7 +863,7 @@ var ReversiGame = (function () {
 
     var numAsColor = function(num){
       return "rgb(" + (255 - (num & 3)) + "," + (255 - ((num >> 2 ) & 3)) + "," + (255 - ((num >> 4 ) & 3)) +')';
-    }
+    };
 
     ctxB.fillStyle = numAsColor(moves.length);
     ctxB.fillRect(0, 0, 1, 1);
@@ -871,7 +871,7 @@ var ReversiGame = (function () {
     for (var i = 0; i < moves.length; i++) {
       ctxB.fillStyle = numAsColor(moves[i]);
       ctxB.fillRect(1 + i, 0, 1, 1);
-    };
+    }
 
     return buffer;
   };
@@ -905,7 +905,7 @@ var ReversiGame = (function () {
 
 var yukiLetsPlayReversi = function(el){
     yukiMakeReplyForm(el, Hanabira.URL.board, $(el).parents('.thread').attr('id').replace('thread_', ''), $(el).parents('.post').attr('id').replace('post_', ''));
-}
+};
 
 var yukiAddGameFile = function(el){
     if(fileList.length >= 5){
@@ -934,15 +934,15 @@ var yukiAddGameFile = function(el){
             var idx = fileList.indexOf(data);
             data.el.remove();
             delete fileList[idx];
-            fileList.splice(idx, 1)
+            fileList.splice(idx, 1);
 
-        }
-    }(fileList[fileList.length - 1])) )
+        };
+    }(fileList[fileList.length - 1])) );
 
     $('#files_placeholder').append(fileList[fileList.length - 1].el);
 
     return true;
-}
+};
 
 var yukiAttachCapcha = function(el){
     if(fileList.length >= 5){
@@ -978,15 +978,15 @@ var yukiAttachCapcha = function(el){
                 var idx = fileList.indexOf(data);
                 data.el.remove();
                 delete fileList[idx];
-                fileList.splice(idx, 1)
+                fileList.splice(idx, 1);
 
-            }
-        }(fileList[fileList.length - 1])) )
+            };
+        }(fileList[fileList.length - 1])) );
 
         $('#files_placeholder').append(fileList[fileList.length - 1].el);
     }
     return true;
-}
+};
 
 
 var supports_html5_storagefunction = function() {
@@ -995,7 +995,7 @@ var supports_html5_storagefunction = function() {
     } catch (e) {
         return false;
     }
-}
+};
 
 var yukiGetLocalStorageValue = function(name, deflt){
     if(supports_html5_storagefunction() && name in localStorage){
@@ -1010,7 +1010,7 @@ var yukiGetLocalStorageValue = function(name, deflt){
     }else{
         return deflt;
     }
-}
+};
 
 var yukiSetLocalStorageValue = function(name, value){
     if(supports_html5_storagefunction()){
@@ -1019,7 +1019,7 @@ var yukiSetLocalStorageValue = function(name, value){
     }else{
         return false;
     }
-}
+};
 
 var yukiSetNewOptions = function(el){
     if($(el).attr('id') == 'yukiAutoloadOption'){
@@ -1039,7 +1039,7 @@ var yukiSetNewOptions = function(el){
         yukiRemoveFileName = el.checked;
         yukiSetLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
     }    
-}
+};
 
 function checkEnter(e){
     e = e || event;
@@ -1051,7 +1051,7 @@ function checkEnter(e){
 
     $('<style type="text/css"> pre {white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word;} .reply_ {height: 16px;display: inline-block;vertical-align: bottom;} .reply, .post-error, .popup {border-radius: 5px;} .yuki_ytholder {float: left;} .yukiSaysPostDeleted {opacity: .5;} .yukiSaysPostDeleted:hover {opacity: 1;} .yukiSaysPostNew {background: #ee9;} .yuki_clickable { cursor: pointer; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: -moz-none; -ms-user-select: none; user-select: none; } .yukiFile { text-align: center; font-size: 66%; display: inline-block; width: 210px; background: #eee; border-radius: 5px; margin: 5px; border: 1px solid #ccc; } #files_placeholder > * { vertical-align: top; } .yukiFile img { max-width: 200px; max-height: 200px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); margin: 5px 0; } .yukiFile span { max-width: 200px; word-wrap: break-word; } .rating_SFW { background: green; } .rating_R15 { background: yellow; } .rating_R18 { background: orange; } .rating_R18G { background: red; } .de-ytube-link:before {content:"";background:url(https://youtube.com/favicon.ico) no-repeat center;margin:0 4px;padding:0 16px 0 0;} </style>').appendTo("head");
 
-    Hanabira.URL = ParseUrl();
+    Hanabira.URL = parseUrl();
 
     threadUpdateTimer = yukiGetLocalStorageValue('yukithreadupdatetime', threadUpdateTimer);
     yukiAutoupdateThread = yukiGetLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
@@ -1092,13 +1092,13 @@ function checkEnter(e){
             dobrochanIconData = icon.toDataURL("image/png");
             $('link[rel="icon"]').remove();
             yukiPleasSetFavicon(dobrochanIconData);
-    }
+    };
 
 
     setInterval(function(){
         if(window.document.hidden || window.document.webkitHidden) {
             yukiSaysWeFocused = false;
-            if(numOfNewPosts != 0){
+            if(numOfNewPosts !== 0){
                 if($('link[rel="shortcut icon"]').attr('href') == dobrochanIconData){
                     yukiPleasSetFavicon(emptyIconData);
                 }else{
