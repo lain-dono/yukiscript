@@ -15,6 +15,7 @@ utils.parseUrl = function(url) {
 // используется один раз в main.js
 // обязанна быть глобальной
 // т.к. жестко хардкорится в onkeypress
+
 function checkEnter(e) {
     e = e || event;
     return (e.keyCode || e.which || e.charCode || 0) !== 13;

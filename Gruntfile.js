@@ -13,9 +13,13 @@ module.exports = function(grunt) {
 				dest: 'yukiscript.user.js',
 			},
 		},
+		jsbeautifier : {
+			files : srcFiles,
+		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-jsbeautifier');
 
 	grunt.registerTask('default', ['concat']);
 };

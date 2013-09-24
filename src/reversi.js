@@ -349,4 +349,3 @@ var ReversiGame = (function() {
 
     return my;
 }());
-

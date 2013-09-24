@@ -29,10 +29,10 @@ yukiPleaseReplyLinks2 = function() {
 
             var replyLink = $('<a class="yukiReplyLinks">&gt;&gt;' + postID + '&nbsp;&nbsp;</a>');
 
-			replyLink.attr('href', '/' + board + '/res/' + threadID + '.xhtml#i' + postID);
+            replyLink.attr('href', '/' + board + '/res/' + threadID + '.xhtml#i' + postID);
 
-			replyLink.attr('onmouseover', 'ShowRefPost(event,"'+ board +'",'+ threadID +','+ postID +')');
-			replyLink.attr('onclick', 'Highlight(event,'+ postID +')');
+            replyLink.attr('onmouseover', 'ShowRefPost(event,"' + board + '",' + threadID + ',' + postID + ')');
+            replyLink.attr('onclick', 'Highlight(event,' + postID + ')');
 
             var links = {};
 
@@ -40,7 +40,7 @@ yukiPleaseReplyLinks2 = function() {
                 var te = $(this);
                 var oldOnClick = te.attr('onclick');
                 if (oldOnClick) {
-					// TODO: разобраться
+                    // TODO: разобраться
                     te.off('onclick');
                     te.attr('onclick', oldOnClick.replace('GetReplyForm', 'yukiMakeReplyForm'));
                 }
@@ -515,4 +515,3 @@ yukiSetNewOptions = function(el) {
         utils.setLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
     }
 };
-
