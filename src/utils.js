@@ -1,4 +1,7 @@
-var parseUrl = function(url) {
+var utils = {};
+
+// используется один раз в main.js
+utils.parseUrl = function(url) {
     m = (url || document.location.href).match(/https?:\/\/([^\/]+)\/([^\/]+)\/((\d+)|res\/(\d+)|\w+)(\.x?html)?(#i?(\d+))?/);
     return m ? {
         host: m[1],
@@ -9,12 +12,15 @@ var parseUrl = function(url) {
     } : {};
 };
 
+// используется один раз в main.js
+// обязанна быть глобальной
+// т.к. жестко хардкорится в onkeypress
 function checkEnter(e) {
     e = e || event;
     return (e.keyCode || e.which || e.charCode || 0) !== 13;
 }
 
-var supports_html5_storagefunction = function() {
+utils.supports_html5_storagefunction = function() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
     } catch (e) {
@@ -22,7 +28,34 @@ var supports_html5_storagefunction = function() {
     }
 };
 
-function dataURLtoBlob(dataURL, dataType) {
+// используется только в main.js
+utils.getLocalStorageValue = function(name, deflt) {
+    if (utils.supports_html5_storagefunction() && name in localStorage) {
+        var v = localStorage.getItem(name);
+        if (v == 'false') {
+            v = false;
+        }
+        if (v == 'true') {
+            v = true;
+        }
+        return v;
+    } else {
+        return deflt;
+    }
+};
+
+// только в ф-ии yukiSetNewOptions
+utils.setLocalStorageValue = function(name, value) {
+    if (utils.supports_html5_storagefunction()) {
+        localStorage.setItem(name, value);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+// только в ф-ии yukiPleasePost
+utils.dataURLtoBlob = function(dataURL, dataType) {
     // Decode the dataURL    
     var binary = atob(dataURL.split(',')[1]);
     // Create 8-bit unsigned array
@@ -36,7 +69,8 @@ function dataURLtoBlob(dataURL, dataType) {
     });
 }
 
-var bytesMagnitude = function(bytes) {
+// используется в ф-ях yukiAddFile, yukiAddGameFile, yukiAttachCapcha
+utils.bytesMagnitude = function(bytes) {
     if (bytes < 1024) {
         return bytes + ' B';
     } else if (bytes < 1024 * 1024) {
@@ -46,7 +80,8 @@ var bytesMagnitude = function(bytes) {
     }
 };
 
-var makeRandId = function(size) {
+// используется в ф-ии yukiPleasePost для создания имени файла
+utils.makeRandId = function(size) {
     var text = "";
     var possible = "0123456789abcdef";
 
@@ -56,7 +91,7 @@ var makeRandId = function(size) {
     return text;
 };
 
-var arrayBufferDataUri = function(raw) {
+utils.arrayBufferDataUri = function(raw) {
     var base64 = '';
     var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -103,7 +138,8 @@ var arrayBufferDataUri = function(raw) {
     return base64;
 };
 
-var jpegStripExtra = function(input) {
+// используется в ф-ях yukiAddFile, yukiPleasePost
+utils.jpegStripExtra = function(input) {
     // result e.target.result;
 
     // Decode the dataURL    
@@ -149,10 +185,11 @@ var jpegStripExtra = function(input) {
 
     output = new Uint8Array(outData, 0, posT + 2);
 
-    return "data:image/Jpeg;base64," + arrayBufferDataUri(output);
+    return "data:image/Jpeg;base64," + utils.arrayBufferDataUri(output);
 };
 
-var difference = function(array1, array2) {
+// используется в ф-ии yukiPleaseUpdateThread
+utils.difference = function(array1, array2) {
     var result = [];
 
     if (array2.length === 0) {

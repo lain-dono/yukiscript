@@ -177,12 +177,12 @@ var yukiPleaseUpdateThread = function(newHtml) {
         oldPosts.push(postID);
     });
 
-    $.each(difference(oldPosts, newPosts), function(index, item) {
+    $.each(utils.difference(oldPosts, newPosts), function(index, item) {
         $('table#post_' + item).addClass('yukiSaysPostDeleted');
 
     });
 
-    $.each(difference(newPosts, oldPosts), function(index, item) {
+    $.each(utils.difference(newPosts, oldPosts), function(index, item) {
         if (postParents[item] !== 0) {
             var pEl = $('table#post_' + postParents[item]);
             while (pEl.next().hasClass('yukiSaysPostDeleted')) {
@@ -299,7 +299,7 @@ var yukiAddFile = function(evt, b) {
             renamed: renamed,
             el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><div class="preview_stub"></div><br/><span class="file_name">' +
                 escape(f_name) + '</span><br/><span class="file_name">' +
-                bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>')
+                utils.bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>')
         });
 
         fileList[fileList.length - 1].el.find('.yuki_clickable').on("click", (function(data) {
@@ -323,7 +323,7 @@ var yukiAddFile = function(evt, b) {
                 var span = $('<span></span>');
 
                 if (yukiRemoveExif && theFile.file.type.toLowerCase() == 'image/jpeg') {
-                    theFile.dataURL = jpegStripExtra(e.target.result);
+                    theFile.dataURL = utils.jpegStripExtra(e.target.result);
                     theFile['jpegStripped'] = true;
                 } else {
                     theFile.dataURL = e.target.result;
@@ -352,21 +352,21 @@ var yukiPleasePost = function() {
     for (var i = 0; i < fileList.length; i++) {
 
         if (yukiRemoveExif && fileList[i].file.type.toLowerCase() == 'image/jpeg' && !fileList[i].jpegStripped) {
-            fileList[i].dataURL = jpegStripExtra(fileList[i].dataURL);
+            fileList[i].dataURL = utils.jpegStripExtra(fileList[i].dataURL);
         }
 
         if (yukiRemoveFileName && !fileList[i].renamed) {
-            fileList[i].f_name = (makeRandId(32) + (fileList[i].f_name.match(/\.[^\.]+$/) || [''])[0]).toLowerCase();
+            fileList[i].f_name = (utils.makeRandId(32) + (fileList[i].f_name.match(/\.[^\.]+$/) || [''])[0]).toLowerCase();
         }
 
-        fd.append("file_" + (i + 1), dataURLtoBlob(fileList[i].dataURL, fileList[i].file.type), fileList[i].f_name);
+        fd.append("file_" + (i + 1), utils.dataURLtoBlob(fileList[i].dataURL, fileList[i].file.type), fileList[i].f_name);
         fd.append("file_" + (i + 1) + "_rating", fileList[i].el.find("select[name='file_1_rating']").val());
     }
     fd.append("post_files_count", fileList.length);
 
     yukiIsPosting = true;
     clearTimeout(updateHeartBeat);
-    yukireplyForm.find("input[type=submit]").val('..Работаем...').attr("disabled", "disabled");
+    yukireplyForm.find("input[type=submit]").val('...Работаем...').attr("disabled", "disabled");
 
     $.ajax({
         url: '/' + Hanabira.URL.board + '/post/new.xhtml' + "?X-Progress-ID=" + upload_handler,
@@ -423,7 +423,7 @@ var yukiAddGameFile = function(el) {
         jpegStripped: true,
         el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + boardDataUrl + '"/><br/><span class="file_name">' +
             escape(f.name) + '</span><br/><span class="file_name">' +
-            bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
+            utils.bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
         dataURL: boardDataUrl
     });
 
@@ -471,7 +471,7 @@ var yukiAttachCapcha = function(el) {
             jpegStripped: true,
             el: $('<div class="yukiFile"><span class="yuki_clickable">[убрать]</span><br/><img src="' + dataURL + '"/><br/><span class="file_name">' +
                 escape(f.name) + '</span><br/><span class="file_name">' +
-                bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
+                utils.bytesMagnitude(f.size) + '&nbsp;</span><select name="file_1_rating" class="rating_SFW" onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));\'><option class="rating_SFW">SFW</option><option class="rating_R15">R-15</option><option class="rating_R18">R-18</option><option class="rating_R18G">R-18G</option></select></div>'),
             dataURL: dataURL
         });
 
@@ -492,48 +492,23 @@ var yukiAttachCapcha = function(el) {
 };
 
 
-var yukiGetLocalStorageValue = function(name, deflt) {
-    if (supports_html5_storagefunction() && name in localStorage) {
-        var v = localStorage.getItem(name);
-        if (v == 'false') {
-            v = false;
-        }
-        if (v == 'true') {
-            v = true;
-        }
-        return v;
-    } else {
-        return deflt;
-    }
-};
-
-var yukiSetLocalStorageValue = function(name, value) {
-    if (supports_html5_storagefunction()) {
-        localStorage.setItem(name, value);
-        return true;
-    } else {
-        return false;
-    }
-};
-
 var yukiSetNewOptions = function(el) {
     if ($(el).attr('id') == 'yukiAutoloadOption') {
         yukiAutoupdateThread = el.checked;
-        yukiSetLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
+        utils.setLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
     }
     if ($(el).attr('id') == 'yukiAutoloadPeriod') {
         threadUpdateTimer = $(el).val();
-        yukiSetLocalStorageValue('yukithreadupdatetime', threadUpdateTimer);
+        utils.setLocalStorageValue('yukithreadupdatetime', threadUpdateTimer);
     }
 
     if ($(el).attr('id') == 'yukiRemoveExif') {
         yukiRemoveExif = el.checked;
-        yukiSetLocalStorageValue('yukiRemoveExif', yukiRemoveExif);
+        utils.setLocalStorageValue('yukiRemoveExif', yukiRemoveExif);
     }
     if ($(el).attr('id') == 'yukiRemoveFileName') {
         yukiRemoveFileName = el.checked;
-        yukiSetLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
+        utils.setLocalStorageValue('yukiRemoveFileName', yukiRemoveFileName);
     }
 };
-
 
