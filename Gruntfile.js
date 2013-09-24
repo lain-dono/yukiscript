@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-	var srcFiles = ['src/intro.js', 'src/yukiscript.js', 'src/reversi.js', 'src/main.js', 'src/outro.js'],
+	var srcFiles = ['src/intro.js', 'src/utils.js', 'src/yukiscript.js', 'src/reversi.js', 'src/main.js', 'src/outro.js'],
 		metaFile = grunt.file.read('yukiscript.meta.js');
 
 	grunt.initConfig({
