@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         ЮкиСкрипт
 // @namespace    udp://insomnia/*
-// @version      0.0.7
-// @description  enter something useful
+// @version      0.1.22
+// @description  Всякое разное для Доброчана
 // @match        http://dobrochan.com/*/*
 // @match        http://dobrochan.ru/*/*
 // @include      http://dobrochan.com/*/*
 // @include      http://dobrochan.ru/*/*
 // @copyright    2013+, You
-// @updateURL    https://userscripts.org/scripts/source/176182.user.js
+// @license      WTFPL
 // @grant        none
 // ==/UserScript==
 
@@ -293,7 +293,7 @@ lastPostUpdate = '',
     yukiRemoveExif = true,
     yukiRemoveFileName = true;
 
-yukiPleaseReplyLinks2 = function() {
+yuki.PleaseReplyLinks2 = function() {
     'use strict';
 
     var board = Hanabira.URL.board;
@@ -395,7 +395,7 @@ yukiPleaseExpandThread = function(e, board, thread) {
         $.get('/api/thread/expand/' + board + '/' + thread, function(res) {
             th.html(res);
             BindCrosses($(".delete input", th));
-            yukiPleaseReplyLinks2();
+            yuki.PleaseReplyLinks2();
         });
     }
     Hanabira.ExpThreads[thread] = html;
@@ -428,7 +428,7 @@ yukiPleaseCheckUpdates = function(force) {
             $.get('/api/thread/expand/' + Hanabira.URL.board + '/' + Hanabira.URL.thread, function(res) {
                 yukiPleaseUpdateThread(res);
                 BindCrosses($(".delete input"));
-                yukiPleaseReplyLinks2();
+                yuki.PleaseReplyLinks2();
             });
 
             lastPostUpdate = data.last_modified;
@@ -1209,7 +1209,7 @@ var ReversiGame = (function() {
         });
     }
 
-    yukiPleaseReplyLinks2();
+    yuki.PleaseReplyLinks2();
 
     $('div.oppost .abbrev a').each(function() {
         var te = $(this);
