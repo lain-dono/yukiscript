@@ -4,6 +4,7 @@ module.exports = function(grunt) {
     var srcFiles = [
         'src/intro.js',
         'src/utils.js',
+        'src/favicon.js',
         'src/yukiscript.js',
         'src/reversi.js',
         'src/main.js',

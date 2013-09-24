@@ -68,45 +68,12 @@
         var te = $(this);
         var oldOnClick = te.attr('onclick');
         if (oldOnClick) {
-            // TODO: убрать
+            // TODO: убрать?
             te.off('onclick');
             te.attr('onclick', oldOnClick.replace('ExpandThread', 'yukiPleaseExpandThread'));
         }
     });
 
-    var icon = document.createElement('canvas');
-    icon.width = 16;
-    icon.height = 16;
-
-    emptyIconData = icon.toDataURL("image/png");
-
-    var favicon = document.createElement('img');
-    favicon.src = '/favicon.ico';
-    favicon.onload = function() {
-        icon.getContext('2d').drawImage(favicon, 0, 0);
-        dobrochanIconData = icon.toDataURL("image/png");
-        $('link[rel="icon"]').remove();
-        yukiPleasSetFavicon(dobrochanIconData);
-    };
-
-
-    setInterval(function() {
-        if (window.document.hidden || window.document.webkitHidden) {
-            yukiSaysWeFocused = false;
-            if (numOfNewPosts !== 0) {
-                if ($('link[rel="shortcut icon"]').attr('href') == dobrochanIconData) {
-                    yukiPleasSetFavicon(emptyIconData);
-                } else {
-                    yukiPleasSetFavicon(dobrochanIconData);
-                }
-            } else if ($('link[rel="shortcut icon"]').attr('href') != dobrochanIconData) {
-                yukiPleasSetFavicon(dobrochanIconData);
-            }
-        } else if ($('link[rel="shortcut icon"]').attr('href') != dobrochanIconData) {
-            yukiPleasSetFavicon(dobrochanIconData);
-            yukiSaysWeFocused = true;
-        }
-    }, 500);
 
     if (Hanabira.URL.thread) {
         setTimeout(yukiPleaseCheckUpdates, threadUpdateTimer * 1000);

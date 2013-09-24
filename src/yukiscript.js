@@ -1,7 +1,5 @@
-var yukiSaysWeFocused = true,
-    emptyIconData = '',
-    dobrochanIconData = '',
-    lastPostUpdate = '',
+var
+lastPostUpdate = '',
     numOfNewPosts = 0,
     originalThreadTitle = '',
     yukireplyForm = null,
@@ -94,7 +92,9 @@ yukiPleaseReplyLinks2 = function() {
             });
 
             $.each(links, function(key, value) {
-                $('#post_' + value + ' .abbrev').append(replyLink);
+                if (value | 0) {
+                    $('#post_' + (value | 0) + ' .abbrev').append(replyLink);
+                }
             });
 
             r.addClass('yukiLinksProcessed');
@@ -222,10 +222,6 @@ yukiPleaseUpdateThread = function(newHtml) {
     $(document).scrollTop(scrollPos);
 };
 
-yukiPleasSetFavicon = function(ico) {
-    $('link[rel="shortcut icon"]').remove();
-    $('<link rel="shortcut icon" type="image/x-icon" href="' + ico + '">').appendTo("head");
-};
 
 yukiMakeReplyForm = function(click, board, tid, pid) {
     if (!yukireplyForm) {
