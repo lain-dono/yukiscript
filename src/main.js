@@ -62,7 +62,7 @@
         });
     }
 
-    yukiPleaseReplyLinks2();
+    yuki.PleaseReplyLinks2();
 
     $('div.oppost .abbrev a').each(function() {
         var te = $(this);
