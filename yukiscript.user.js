@@ -238,7 +238,7 @@ var yukiSaysWeFocused = true,
     yukiRemoveExif = true,
     yukiRemoveFileName = true;
 
-var yukiPleaseReplyLinks2 = function() {
+yukiPleaseReplyLinks2 = function() {
     'use strict';
 
     var board = Hanabira.URL.board;
@@ -251,9 +251,12 @@ var yukiPleaseReplyLinks2 = function() {
             var r = $(this);
             var postID = r.attr('id').replace('post_', '');
 
-            var replyLink = '<a href="/' + board + '/res/' + threadID + '.xhtml#i' + postID + '" onmouseover="ShowRefPost(event,\'' +
-                board + '\', ' + threadID + ', ' + postID + ')" onclick="Highlight(event, \'' + postID +
-                '\')" style="font-size: 66%; font-style: italic;" class="yukiReplyLinks">&gt;&gt;' + postID + '&nbsp;&nbsp;</a>';
+            var replyLink = $('<a class="yukiReplyLinks">&gt;&gt;' + postID + '&nbsp;&nbsp;</a>');
+
+			replyLink.attr('href', '/' + board + '/res/' + threadID + '.xhtml#i' + postID);
+
+			replyLink.attr('onmouseover', 'ShowRefPost(event,"'+ board +'",'+ threadID +','+ postID +')');
+			replyLink.attr('onclick', 'Highlight(event,'+ postID +')');
 
             var links = {};
 
@@ -261,6 +264,7 @@ var yukiPleaseReplyLinks2 = function() {
                 var te = $(this);
                 var oldOnClick = te.attr('onclick');
                 if (oldOnClick) {
+					// TODO: разобраться
                     te.off('onclick');
                     te.attr('onclick', oldOnClick.replace('GetReplyForm', 'yukiMakeReplyForm'));
                 }
@@ -314,7 +318,7 @@ var yukiPleaseReplyLinks2 = function() {
             });
 
             $.each(links, function(key, value) {
-                $('#post_' + value + ' .abbrev').append($(replyLink));
+                $('#post_' + value + ' .abbrev').append(replyLink);
             });
 
             r.addClass('yukiLinksProcessed');
@@ -323,7 +327,7 @@ var yukiPleaseReplyLinks2 = function() {
     });
 };
 
-var yukiPleaseExpandThread = function(e, board, thread) {
+yukiPleaseExpandThread = function(e, board, thread) {
     e.preventDefault();
     var th = $('#thread_' + thread);
     var html = th.html();
@@ -340,7 +344,7 @@ var yukiPleaseExpandThread = function(e, board, thread) {
     Hanabira.ExpThreads[thread] = html;
 };
 
-var yukiPleaseShowNumUpdates = function() {
+yukiPleaseShowNumUpdates = function() {
     if (numOfNewPosts > 0) {
         document.title = '[' + numOfNewPosts + '] ' + originalThreadTitle;
 
@@ -350,7 +354,7 @@ var yukiPleaseShowNumUpdates = function() {
     }
 };
 
-var yukiPleaseCheckUpdates = function(force) {
+yukiPleaseCheckUpdates = function(force) {
     if (yukiIsPosting) {
         return;
     }
@@ -375,7 +379,7 @@ var yukiPleaseCheckUpdates = function(force) {
     }, 'json');
 };
 
-var yukiPleaseUpdateThread = function(newHtml) {
+yukiPleaseUpdateThread = function(newHtml) {
     'use strict';
 
     var scrollPos = $(document).scrollTop();
@@ -442,12 +446,12 @@ var yukiPleaseUpdateThread = function(newHtml) {
     $(document).scrollTop(scrollPos);
 };
 
-var yukiPleasSetFavicon = function(ico) {
+yukiPleasSetFavicon = function(ico) {
     $('link[rel="shortcut icon"]').remove();
     $('<link rel="shortcut icon" type="image/x-icon" href="' + ico + '">').appendTo("head");
 };
 
-var yukiMakeReplyForm = function(click, board, tid, pid) {
+yukiMakeReplyForm = function(click, board, tid, pid) {
     if (!yukireplyForm) {
         yukireplyForm = $('<form class="reply" style="display: inline-block; text-align: left;" id="yukipostform" action="/b/post/new.xhtml" method="post" enctype="multipart/form-data" onsubmit="return yukiPleasePost()">' +
             '<input name="thread_id" value="2412950" type="hidden"><input name="task" value="post" type="hidden"><input id="scroll_to" name="scroll_to" value="2426848" type="hidden">' +
@@ -496,7 +500,7 @@ var yukiMakeReplyForm = function(click, board, tid, pid) {
     }
 };
 
-var yukiAddFile = function(evt, b) {
+yukiAddFile = function(evt, b) {
     var files = evt.target.files; // FileList object
 
     if (fileList.length >= 5) {
@@ -513,7 +517,7 @@ var yukiAddFile = function(evt, b) {
         var f_name = f.name,
             renamed = false;
         if (yukiRemoveFileName) {
-            f_name = (makeRandId(32) + (f.name.match(/\.[^\.]+$/) || [''])[0]).toLowerCase();
+            f_name = (utils.makeRandId(32) + (f.name.match(/\.[^\.]+$/) || [''])[0]).toLowerCase();
             renamed = true;
         }
 
@@ -565,7 +569,7 @@ var yukiAddFile = function(evt, b) {
     }
 };
 
-var yukiPleasePost = function() {
+yukiPleasePost = function() {
     var formData = $('#yukipostform').serializeArray(),
         fd = new FormData();
 
@@ -622,11 +626,11 @@ yukiQuoteSelected = function() {
     InsertInto(t, '>' + window.getSelection().toString().replace(/\n/gm, '\n>') + '\n');
 };
 
-var yukiLetsPlayReversi = function(el) {
+yukiLetsPlayReversi = function(el) {
     yukiMakeReplyForm(el, Hanabira.URL.board, $(el).parents('.thread').attr('id').replace('thread_', ''), $(el).parents('.post').attr('id').replace('post_', ''));
 };
 
-var yukiAddGameFile = function(el) {
+yukiAddGameFile = function(el) {
     if (fileList.length >= 5) {
         alert('Пять файлов это максимум на Доброчане.');
         return false;
@@ -667,7 +671,7 @@ var yukiAddGameFile = function(el) {
     return true;
 };
 
-var yukiAttachCapcha = function(el) {
+yukiAttachCapcha = function(el) {
     if (fileList.length >= 5) {
         alert('Пять файлов это максимум на Доброчане.');
         return false;
@@ -716,7 +720,7 @@ var yukiAttachCapcha = function(el) {
 };
 
 
-var yukiSetNewOptions = function(el) {
+yukiSetNewOptions = function(el) {
     if ($(el).attr('id') == 'yukiAutoloadOption') {
         yukiAutoupdateThread = el.checked;
         utils.setLocalStorageValue('yukiautoupdatethread', yukiAutoupdateThread);
@@ -1111,6 +1115,12 @@ var ReversiGame = (function() {
 		'.rating_R18 { background: orange; }',
 		'.rating_R18G { background: red; }',
 		'.de-ytube-link:before { content:""; background:url(https://youtube.com/favicon.ico) no-repeat center; margin:0 4px; padding:0 16px 0 0; }',
+
+		'.yukiReplyLinks { font-size: 66%; font-style: italic; }',
+
+		'div.thread { counter-reset: pstcnt 1; }',
+		'.replypost:not(.yukiSaysPostDeleted) .cpanel:after { counter-increment: pstcnt; content: counter(pstcnt); margin-right:4px; vertical-align:1px; color:#090; font:bold 11px tahoma; cursor:default; }',
+		'.replypost:nth-child(n+500) .cpanel:after { color: #900; }',
 	].join('\n');
 
     $('<style>' + styleSheet + '</style>').appendTo("head");
@@ -1126,10 +1136,25 @@ var ReversiGame = (function() {
         originalThreadTitle = Hanabira.URL.board + '/ ' + document.title.match(/.+—\s.+—\s(.+)/)[1];
         document.title = originalThreadTitle;
 
-        $('div.thread').append($('<br clear="left"><form><label><input type="checkbox" id="yukiAutoloadOption" onchange="yukiSetNewOptions(this);"' + (yukiAutoupdateThread ? ' checked' : '') + '> Подгружать новые посты</label> каждые <input size="4" maxlength="4" value="60" type="text" id="yukiAutoloadPeriod" onkeypress = "checkEnter()" onchange="yukiSetNewOptions(this);">(сек) <span>[<a href="#" id="yukiForceUpdate" onclick="yukiPleaseCheckUpdates(true); return false;">Обновить сейчас</a>]</span></form>'));
-        $('#yukiAutoloadPeriod').val(threadUpdateTimer);
-        $('<style type="text/css"> div.thread{counter-reset: pstcnt 1;} .replypost:not(.yukiSaysPostDeleted) .cpanel:after{counter-increment: pstcnt;content: counter(pstcnt);margin-right:4px;vertical-align:1px;color:#090;font:bold 11px tahoma;cursor:default;} .replypost:nth-child(n+500) .cpanel:after{color: #900;}  </style>').appendTo("head");
+		var updater = $('<form><label><input type="checkbox" id="yukiAutoloadOption"' + (yukiAutoupdateThread ? ' checked' : '') + '> Подгружать новые посты</label> каждые <input size="4" maxlength="4" value="60" type="text" id="yukiAutoloadPeriod" onkeypress = "checkEnter()">(сек) <span>[<a href="#" id="yukiForceUpdate">Обновить сейчас</a>]</span></form>');
 
+
+        $('div.thread').append($('<br clear="left">'));
+        $('div.thread').append(updater);
+        $('#yukiAutoloadPeriod').val(threadUpdateTimer);
+
+		$("#yukiAutoloadOption").change(function(){
+			yukiSetNewOptions(this);
+		});
+
+		$("#yukiAutoloadPeriod").change(function(){
+			yukiSetNewOptions(this);
+		});
+
+		$("#yukiForceUpdate").click(function(e){
+			e.preventDefault();
+			yukiPleaseCheckUpdates(this);
+		});
     }
 
     yukiPleaseReplyLinks2();
@@ -1138,6 +1163,7 @@ var ReversiGame = (function() {
         var te = $(this);
         var oldOnClick = te.attr('onclick');
         if (oldOnClick) {
+			// TODO: убрать
             te.off('onclick');
             te.attr('onclick', oldOnClick.replace('ExpandThread', 'yukiPleaseExpandThread'));
         }

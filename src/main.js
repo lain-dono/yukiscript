@@ -19,6 +19,12 @@
 		'.rating_R18 { background: orange; }',
 		'.rating_R18G { background: red; }',
 		'.de-ytube-link:before { content:""; background:url(https://youtube.com/favicon.ico) no-repeat center; margin:0 4px; padding:0 16px 0 0; }',
+
+		'.yukiReplyLinks { font-size: 66%; font-style: italic; }',
+
+		'div.thread { counter-reset: pstcnt 1; }',
+		'.replypost:not(.yukiSaysPostDeleted) .cpanel:after { counter-increment: pstcnt; content: counter(pstcnt); margin-right:4px; vertical-align:1px; color:#090; font:bold 11px tahoma; cursor:default; }',
+		'.replypost:nth-child(n+500) .cpanel:after { color: #900; }',
 	].join('\n');
 
     $('<style>' + styleSheet + '</style>').appendTo("head");
@@ -34,10 +40,25 @@
         originalThreadTitle = Hanabira.URL.board + '/ ' + document.title.match(/.+—\s.+—\s(.+)/)[1];
         document.title = originalThreadTitle;
 
-        $('div.thread').append($('<br clear="left"><form><label><input type="checkbox" id="yukiAutoloadOption" onchange="yukiSetNewOptions(this);"' + (yukiAutoupdateThread ? ' checked' : '') + '> Подгружать новые посты</label> каждые <input size="4" maxlength="4" value="60" type="text" id="yukiAutoloadPeriod" onkeypress = "checkEnter()" onchange="yukiSetNewOptions(this);">(сек) <span>[<a href="#" id="yukiForceUpdate" onclick="yukiPleaseCheckUpdates(true); return false;">Обновить сейчас</a>]</span></form>'));
-        $('#yukiAutoloadPeriod').val(threadUpdateTimer);
-        $('<style type="text/css"> div.thread{counter-reset: pstcnt 1;} .replypost:not(.yukiSaysPostDeleted) .cpanel:after{counter-increment: pstcnt;content: counter(pstcnt);margin-right:4px;vertical-align:1px;color:#090;font:bold 11px tahoma;cursor:default;} .replypost:nth-child(n+500) .cpanel:after{color: #900;}  </style>').appendTo("head");
+		var updater = $('<form><label><input type="checkbox" id="yukiAutoloadOption"' + (yukiAutoupdateThread ? ' checked' : '') + '> Подгружать новые посты</label> каждые <input size="4" maxlength="4" value="60" type="text" id="yukiAutoloadPeriod" onkeypress = "checkEnter()">(сек) <span>[<a href="#" id="yukiForceUpdate">Обновить сейчас</a>]</span></form>');
 
+
+        $('div.thread').append($('<br clear="left">'));
+        $('div.thread').append(updater);
+        $('#yukiAutoloadPeriod').val(threadUpdateTimer);
+
+		$("#yukiAutoloadOption").change(function(){
+			yukiSetNewOptions(this);
+		});
+
+		$("#yukiAutoloadPeriod").change(function(){
+			yukiSetNewOptions(this);
+		});
+
+		$("#yukiForceUpdate").click(function(e){
+			e.preventDefault();
+			yukiPleaseCheckUpdates(this);
+		});
     }
 
     yukiPleaseReplyLinks2();
@@ -46,6 +67,7 @@
         var te = $(this);
         var oldOnClick = te.attr('onclick');
         if (oldOnClick) {
+			// TODO: убрать
             te.off('onclick');
             te.attr('onclick', oldOnClick.replace('ExpandThread', 'yukiPleaseExpandThread'));
         }
