@@ -1,5 +1,5 @@
 # ЮкиСкрипт
-==============
+
 > **[Установить](https://raw.github.com/lain-dono/yukiscript/master/yukiscript.user.js)**
 
 - Расставляет в постах ссылки на ответы
