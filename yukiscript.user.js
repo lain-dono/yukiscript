@@ -1105,7 +1105,8 @@ var ReversiGame = (function() {
         '.yukiSaysPostDeleted:hover { opacity: 1; }',
         '.yukiSaysPostNew { background: #ee9; }',
         '.yuki_clickable { cursor: pointer; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: -moz-none; -ms-user-select: none; user-select: none; }',
-        '.yukiFile { text-align: center; font-size: 66%; display: inline-block; width: 210px; background: #eee; border-radius: 5px; margin: 5px; border: 1px solid #ccc; }',
+        '.yukiFile { text-align: center; font-size: 66%; display: inline-block; width: 210px; margin: 5px; }',
+
         '#files_placeholder > * { vertical-align: top; }',
         '.yukiFile img { max-width: 200px; max-height: 200px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); margin: 5px 0; }',
         '.yukiFile span { max-width: 200px; word-wrap: break-word; }',
