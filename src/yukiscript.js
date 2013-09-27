@@ -267,6 +267,7 @@ yukiMakeReplyForm = function(click, board, tid, pid) {
 
         gameData.src = $($(click).parent().find('a')[0]).attr('href');
     }
+    yuki.emit('makeReplyForm', yukireplyForm);
 };
 
 

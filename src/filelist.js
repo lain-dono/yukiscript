@@ -1,15 +1,13 @@
-var fileList = [];
 var yukiRemoveExif = true;
 var yukiRemoveFileName = true;
 
-yuki.fileList = fileList;
-
 yuki.FileListWithcraft = new function() {
-    var el_name = '#files_placeholder';
+    utils.EventDispatcherMixin.call(this);
+
+    this.fileList = [];
+
     var rating_tpl = [
-        '<select name="file_1_rating" class="rating_SFW"',
-        //'onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));',
-        '\'>',
+        '<select name="file_1_rating" class="rating_SFW">',
         '<option class="rating_SFW">SFW</option>',
         '<option class="rating_R15">R-15</option>',
         '<option class="rating_R18">R-18</option>',
@@ -17,10 +15,20 @@ yuki.FileListWithcraft = new function() {
         '</select>'
     ].join('\n');
 
-    this.fileList = fileList;
-
     this.clear = function() {
         this.fileList = [];
+        this.emit('clear');
+    }.bind(this);
+
+    this.removeByVal = function(f) {
+        this.removeByIdx(this.fileList.indexOf(f))
+    }.bind(this);
+
+    this.removeByIdx = function(idx) {
+        this.emit('remove', idx, this.fileList[idx]);
+        this.fileList[idx]._el.remove();
+        delete this.fileList[idx];
+        this.fileList.splice(idx, 1);
     }.bind(this);
 
     /*
@@ -53,46 +61,44 @@ yuki.FileListWithcraft = new function() {
         f._el.append($('<div class="preview_stub"><img src="' + f.dataURL + '"/></div><br/>'));
         f._el.append($('<span class="file_name">' + escape(f.name) + '</span><br/>'));
         f._el.append($('<span class="file_name">' + utils.bytesMagnitude(f.size) + '&nbsp;</span>'));
-        //f._el.append($(''));
+        f._el.append(rating);
 
         f._el.find('.yuki_clickable').click(function() {
-            var list = yuki.FileListWithcraft.fileList;
-            var idx = list.indexOf(f);
-            list[idx]._el.remove();
-            delete list[idx];
-            list.splice(idx, 1);
+            yuki.FileListWithcraft.removeByVal(f);
         });
 
         this.fileList.push(f);
 
         $('#files_placeholder').append(f._el);
 
+        this.emit('push', f);
+
         return true;
     }.bind(this);
 
     this.appendToFormData = function(fd) {
-        fd.append("post_files_count", this.fileList.length);
-
         for (var i = 0, len = fileList.length; i < len; i++) {
             var f = this.fileList[i];
             fd.append("file_" + (i + 1), utils.dataURLtoBlob(f.dataURL, f.type), f.name);
             fd.append("file_" + (i + 1) + "_rating", f._rating);
         }
+
+        fd.append("post_files_count", this.fileList.length);
     }.bind(this);
 };
 
 yukiAddFile = function(evt, b) {
     var files = evt.target.files; // FileList object
     for (var i = 0, f; f = files[i]; i++) {
-        console.log("x", f);
         var reader = new FileReader();
 
         reader.onload = (function(theFile) {
             return function(e) {
-                console.log("y", theFile);
                 theFile.dataURL = e.target.result;
+                theFile.type = theFile.type.toLowerCase();
+                theFile.size = theFile.dataURL.length * 6 / 8;
 
-                if (yukiRemoveExif && theFile.type.toLowerCase() == 'image/jpeg') {
+                if (yukiRemoveExif && theFile.type == 'image/jpeg') {
                     theFile.dataURL_Original = theFile.dataURL;
                     theFile.dataURL = utils.jpegStripExtra(theFile.dataURL);
                 }
@@ -101,8 +107,6 @@ yukiAddFile = function(evt, b) {
                     theFile.name_Original = theFile.name;
                     theFile.name = (utils.makeRandId(32) + (theFile.name.match(/\.[^\.]+$/) || [''])[0]).toLowerCase();
                 }
-
-                theFile.size = theFile.dataURL.length * 6 / 8;
 
                 yuki.FileListWithcraft.push(theFile);
             };

@@ -279,18 +279,13 @@ yuki.FaviconWitchcraft = new function() {
     setInterval(this.swith.bind(this), 500);
 };
 
-var fileList = [];
 var yukiRemoveExif = true;
 var yukiRemoveFileName = true;
-
-yuki.fileList = fileList;
 
 yuki.FileListWithcraft = new function() {
     var el_name = '#files_placeholder';
     var rating_tpl = [
-        '<select name="file_1_rating" class="rating_SFW"',
-        //'onchange=\'$(this).attr("class", "").addClass("rating_" + $(this).children(":selected").val().replace("-",""));',
-        '\'>',
+        '<select name="file_1_rating" class="rating_SFW">',
         '<option class="rating_SFW">SFW</option>',
         '<option class="rating_R15">R-15</option>',
         '<option class="rating_R18">R-18</option>',
@@ -298,7 +293,7 @@ yuki.FileListWithcraft = new function() {
         '</select>'
     ].join('\n');
 
-    this.fileList = fileList;
+    this.fileList = [];
 
     this.clear = function() {
         this.fileList = [];
@@ -334,7 +329,7 @@ yuki.FileListWithcraft = new function() {
         f._el.append($('<div class="preview_stub"><img src="' + f.dataURL + '"/></div><br/>'));
         f._el.append($('<span class="file_name">' + escape(f.name) + '</span><br/>'));
         f._el.append($('<span class="file_name">' + utils.bytesMagnitude(f.size) + '&nbsp;</span>'));
-        //f._el.append($(''));
+        f._el.append(rating);
 
         f._el.find('.yuki_clickable').click(function() {
             var list = yuki.FileListWithcraft.fileList;
@@ -352,13 +347,13 @@ yuki.FileListWithcraft = new function() {
     }.bind(this);
 
     this.appendToFormData = function(fd) {
-        fd.append("post_files_count", this.fileList.length);
-
         for (var i = 0, len = fileList.length; i < len; i++) {
             var f = this.fileList[i];
             fd.append("file_" + (i + 1), utils.dataURLtoBlob(f.dataURL, f.type), f.name);
             fd.append("file_" + (i + 1) + "_rating", f._rating);
         }
+
+        fd.append("post_files_count", this.fileList.length);
     }.bind(this);
 };
 
@@ -372,8 +367,9 @@ yukiAddFile = function(evt, b) {
             return function(e) {
                 console.log("y", theFile);
                 theFile.dataURL = e.target.result;
+                theFile.type = theFile.type.toLowerCase();
 
-                if (yukiRemoveExif && theFile.type.toLowerCase() == 'image/jpeg') {
+                if (yukiRemoveExif && theFile.type == 'image/jpeg') {
                     theFile.dataURL_Original = theFile.dataURL;
                     theFile.dataURL = utils.jpegStripExtra(theFile.dataURL);
                 }
@@ -638,6 +634,7 @@ yukiPleaseUpdateThread = function(newHtml) {
         yukiPleaseRmoveReplyForm = false;
         yukireplyForm.remove();
         yukireplyForm = null;
+        fileList = [];
         yuki.FileListWithcraft.clear();
     }
 

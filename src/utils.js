@@ -1,7 +1,62 @@
-var utils = {};
+/** @namespace */
+var utils = {
 
-// используется один раз в main.js
-utils.parseUrl = function(url) {
+/**
+ * Диспетчер Событий
+ * @class
+ */
+EventDispatcherMixin: function() {
+    var events = {};
+
+    /**
+     * Добавляет обработчик события
+     * @function
+     * @param key - имя события
+     * @param func - колбек
+     * @param context - контекст
+     */
+    this.on = function(key, func, context) {
+        func.context = context || this;
+        if (!events.hasOwnProperty(key)) {
+            events[key] = [];
+        }
+        events[key].push(func);
+    }.bind(this);
+
+    /**
+     * Удаляет обработчик события
+     * @function
+     * @param key - имя события
+     * @param func - колбек
+     */
+    this.off = function (key, func) {
+        if (events.hasOwnProperty(key)) {
+            for (var i in events[key]) {
+                if (events[key][i] === func) {
+                    events[key].splice(i, 1);
+                }
+            }
+        }
+    }.bind(this);
+
+    /**
+     * Инициирует события
+     * @function
+     * @param key - имя события
+     * @param ... - остальные аргументы
+     */
+    this.emit = function (key) {
+        if (events.hasOwnProperty(key)) {
+            for (var i in events[key]) {
+                func = events[key][i];
+                func.apply(func.context, arguments);
+            }
+        }
+    }.bind(this);
+},
+
+/** используется один раз в main.js */
+parseUrl: function(url) {
     m = (url || document.location.href).match(/https?:\/\/([^\/]+)\/([^\/]+)\/((\d+)|res\/(\d+)|\w+)(\.x?html)?(#i?(\d+))?/);
     return m ? {
         host: m[1],
@@ -10,27 +65,18 @@ utils.parseUrl = function(url) {
         thread: m[5],
         pointer: m[8]
     } : {};
-};
+},
 
-// используется один раз в main.js
-// обязанна быть глобальной
-// т.к. жестко хардкорится в onkeypress
-
-function checkEnter(e) {
-    e = e || event;
-    return (e.keyCode || e.which || e.charCode || 0) !== 13;
-}
-
-utils.supports_html5_storagefunction = function() {
+supports_html5_storagefunction: function() {
     try {
         return 'localStorage' in window && window['localStorage'] !== null;
     } catch (e) {
         return false;
     }
-};
+},
 
-// используется только в main.js
-utils.getLocalStorageValue = function(name, deflt) {
+/** используется только в main.js */
+getLocalStorageValue: function(name, deflt) {
     if (utils.supports_html5_storagefunction() && name in localStorage) {
         var v = localStorage.getItem(name);
         if (v == 'false') {
@@ -43,20 +89,20 @@ utils.getLocalStorageValue = function(name, deflt) {
     } else {
         return deflt;
     }
-};
+},
 
-// только в ф-ии yukiSetNewOptions
-utils.setLocalStorageValue = function(name, value) {
+/** только в ф-ии yukiSetNewOptions */
+setLocalStorageValue: function(name, value) {
     if (utils.supports_html5_storagefunction()) {
         localStorage.setItem(name, value);
         return true;
     } else {
         return false;
     }
-};
+},
 
-// только в ф-ии yukiPleasePost
-utils.dataURLtoBlob = function(dataURL, dataType) {
+/** только в ф-ии yukiPleasePost */
+dataURLtoBlob: function(dataURL, dataType) {
     // Decode the dataURL    
     var binary = atob(dataURL.split(',')[1]);
     // Create 8-bit unsigned array
@@ -68,10 +114,10 @@ utils.dataURLtoBlob = function(dataURL, dataType) {
     return new Blob([new Uint8Array(array)], {
         type: dataType
     });
-}
+},
 
-// используется в ф-ях yukiAddFile, yukiAddGameFile, yukiAttachCapcha
-utils.bytesMagnitude = function(bytes) {
+/** используется в ф-ях yukiAddFile, yukiAddGameFile, yukiAttachCapcha */
+bytesMagnitude: function(bytes) {
     if (bytes < 1024) {
         return bytes + ' B';
     } else if (bytes < 1024 * 1024) {
@@ -79,10 +125,10 @@ utils.bytesMagnitude = function(bytes) {
     } else {
         return (bytes / 1024 / 1024).toFixed(2) + ' MB';
     }
-};
+},
 
-// используется в ф-ии yukiPleasePost для создания имени файла
-utils.makeRandId = function(size) {
+/** используется в ф-ии yukiPleasePost для создания имени файла */
+makeRandId: function(size) {
     var text = "";
     var possible = "0123456789abcdef";
 
@@ -90,9 +136,9 @@ utils.makeRandId = function(size) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
-};
+},
 
-utils.arrayBufferDataUri = function(raw) {
+arrayBufferDataUri: function(raw) {
     var base64 = '';
     var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -137,10 +183,10 @@ utils.arrayBufferDataUri = function(raw) {
     }
 
     return base64;
-};
+},
 
-// используется в ф-ях yukiAddFile, yukiPleasePost
-utils.jpegStripExtra = function(input) {
+/** используется в ф-ях yukiAddFile, yukiPleasePost */
+jpegStripExtra: function(input) {
     // result e.target.result;
 
     // Decode the dataURL    
@@ -187,21 +233,38 @@ utils.jpegStripExtra = function(input) {
     output = new Uint8Array(outData, 0, posT + 2);
 
     return "data:image/Jpeg;base64," + utils.arrayBufferDataUri(output);
-};
+},
 
-// используется в ф-ии yukiPleaseUpdateThread
-utils.difference = function(array1, array2) {
+/**
+ * Считает разницу между двумя массивами
+ * используется в ф-ии yukiPleaseUpdateThread
+ * @returns Те элементы из array1, которых нет в array2
+ */
+difference: function(array1, array2) {
     var result = [];
 
     if (array2.length === 0) {
         return array1;
     }
 
-    for (var i = 0; i < array1.length; i++) {
+    for (var i = 0, len = array1.length; i < len; i++) {
         if (array2.indexOf(array1[i]) == -1) {
             result.push(array1[i]);
         }
     }
 
     return result;
+},
+
 };
+
+utils.EventDispatcherMixin.call(yuki);
+
+// используется один раз в main.js
+// обязанна быть глобальной
+// т.к. жестко хардкорится в onkeypress
+
+function checkEnter(e) {
+    e = e || event;
+    return (e.keyCode || e.which || e.charCode || 0) !== 13;
+}
