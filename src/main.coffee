@@ -1,7 +1,30 @@
 Hanabira.URL = parseUrl()
 
+yuki.PleaseInitModules()
+yuki.form = new yuki.ReplyForm()
+
+parser = new yuki.ThreadParser
+parser.on 'parsedPost', (post) ->
+  yuki.emit 'parsedPost', post
+parser.parsePage $('.thread')
+
+window.yuki = yuki
+
 # Добавим стилей
 $('<style>
+  #yukipostform { display: inline-block; text-align: left; width:100%; }
+  #yukipostform { display: block; text-align: left; width:100%; }
+  #yukiRemoveReplyForm { float: right; }
+  #yukiRemoveReplyForm img { vertical-align:middle; min-height:17px; }
+  #yuki_sageoff { font-style: italic; }
+  #yuki_sageon { font-weight: bold; color: red; }
+  #dumb_file_field {
+    visiblity:hidden;
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    left: -9001px;
+  }
   pre {
     white-space: pre-wrap;
     white-space: -moz-pre-wrap;
@@ -9,7 +32,7 @@ $('<style>
     white-space: -o-pre-wrap;
     word-wrap: break-word;
   }
-  .reply_ { height: 16px;display: inline-block;vertical-align: bottom; }
+  .reply_ { height: 16px; display: inline-block; vertical-align: bottom; }
   .reply, .post-error, .popup { border-radius: 5px; }
   .yuki_ytholder { float: left;}
   .yukiSaysPostDeleted { opacity: .5; }
@@ -66,11 +89,3 @@ $('<style>
   .replypost:nth-child(n+500) .cpanel:after { color: #900; }
 </style>').appendTo('head')
 
-yuki.PleaseInitModules()
-
-parser = new yuki.ThreadParser
-parser.on 'parsedPost', (post) ->
-  yuki.emit 'parsedPost', post
-parser.parsePage $('.thread')
-
-window.yuki = yuki
